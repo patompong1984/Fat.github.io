@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <title>คำนวณแคลอรี่อาหารไทย</title>
+  <style>
+    body { font-family: sans-serif; max-width: 800px; margin: auto; padding: 20px; }
+    select, input, button { width: 100%; margin-top: 10px; padding: 10px; font-size: 16px; }
+    ul { margin-top: 20px; }
+    h2, h3 { color: #005555; }
+  </style>
+</head>
+<body>
+  <h2>ระบบบันทึกแคลอรี่อาหารไทย</h2>
+
+  <label for="food">เลือกอาหาร/ผลไม้:</label>
+  <select id="food">
+    <option value="rice">ข้าวสวย (130 kcal/100g)</option>
+    <option value="padthai">ผัดไทย (220 kcal/100g)</option>
+    <option value="somtum">ส้มตำ (60 kcal/100g)</option>
+    <option value="friedrice">ข้าวผัด (198 kcal/100g)</option>
+    <option value="omelet">ไข่เจียว (220 kcal/100g)</option>
+    <option value="grilledpork">หมูย่าง (250 kcal/100g)</option>
+    <option value="noodles">ก๋วยเตี๋ยว (150 kcal/100g)</option>
+    <option value="banana">กล้วยน้ำว้า (89 kcal/100g)</option>
+    <option value="greencurry">แกงเขียวหวาน (128 kcal/100g)</option>
+    <option value="kangsom">แกงส้มผักรวม (65 kcal/100g)</option>
+    <option value="chickenbreast">อกไก่ต้ม (120 kcal/100g)</option>
+    <option value="friedchickendrum">น่องไก่ทอด (250 kcal/100g)</option>
+    <option value="grilleddrumstick">น่องไก่ย่าง (165 kcal/100g)</option>
+    <option value="kanomjeen">ขนมจีน (150 kcal/100g)</option>
+    <option value="namyakathee">น้ำยากะทิ (170 kcal/100g)</option>
+    <option value="namyapaa">น้ำยาป่า (90 kcal/100g)</option>
+    <option value="boiledegg">ไข่ต้ม (150 kcal/100g)</option>
+    <option value="friedmackerel">ปลาทูทอด (200 kcal/100g)</option>
+    <option value="friedpork">หมูทอด (280 kcal/100g)</option>
+    <option value="ribeye">เนื้อวัวริบอายสเตก (240 kcal/100g)</option>
+    <option value="steamegg">ไข่ตุ๋น (71 kcal/100g)</option>
+    <option value="braisedporkhead">หัวหมูตุ๋นยาจีน (270 kcal/100g)</option>
+    <option value="pizza">พิซซ่า (266 kcal/100g)</option>
+    <option value="longkong">ลองกอง (57 kcal/100g)</option>
+    <option value="rambutan">เงาะ (68 kcal/100g)</option>
+    <option value="guava">ฝรั่ง (42 kcal/100g)</option>
+    <option value="apple">แอปเปิ้ล (52 kcal/100g)</option>
+    <option value="pineapple">สับปะรด (50 kcal/100g)</option>
+    <option value="banana2">กล้วยหอม (120 kcal/100g)</option>
+    <option value="orange">ส้ม (47 kcal/100g)</option>
+    <option value="bananaCake">ขนมเค้กกล้วยหอม (317 kcal/100g)</option>
+    <option value="porkNoodle">ก๋วยเตี๋ยวหมู (380 kcal/ชาม)</option>
+    <option value="beefNoodle">ก๋วยเตี๋ยวเนื้อรวม (400 kcal/ชาม)</option>
+    <option value="grilledTilapia">ปลานิลเผาเกลือ (96 kcal/100g)</option>
+    <option value="beefSoup">เกาเหลาเนื้อรวม (120 kcal/100g)</option>
+  </select>
+
+  <label for="amount">ปริมาณ (กรัม หรือ ชาม):</label>
+  <input type="text" id="amount" placeholder="เช่น 150 หรือ 1">
+
+  <button onclick="addFood()">เพิ่มรายการ</button>
+
+  <h3>รายการอาหารวันนี้:</h3>
+  <ul id="foodList"></ul>
+  <h3 id="totalCalories">แคลอรี่รวมทั้งหมด: 0 กิโลแคลอรี่</h3>
+
+  <script>
+    const caloriesPer100g = {
+      rice: 130, padthai: 220, somtum: 60, friedrice: 198, omelet: 220,
+      grilledpork: 250, noodles: 150, banana: 89, greencurry: 128, kangsom: 65,
+      chickenbreast: 120, friedchickendrum: 250, grilleddrumstick: 165,
+      kanomjeen: 150, namyakathee: 170, namyapaa: 90, boiledegg: 150,
+      friedmackerel: 200, friedpork: 280, ribeye: 240, steamegg: 71,
+      braisedporkhead: 270, pizza: 266, longkong: 57, rambutan: 68,
+      guava: 42, apple: 52, pineapple: 50, banana2: 120, orange: 47,
+      bananaCake: 317, porkNoodle: 380, beefNoodle: 400,
+      grilledTilapia: 96, beefSoup: 120
+    };
+
+    const perUnitMenu = ["porkNoodle", "beefNoodle"];
+
+    let total = 0;
+
+    function addFood() {
+      const food = document.getElementById("food").value;
+      const label = document.getElementById("food").selectedOptions[0].text;
+      const input = document.getElementById("amount").value.trim();
+
+      if (!input || isNaN(parseFloat(input))) {
+        alert("กรุณากรอกปริมาณที่ถูกต้อง เช่น 150 หรือ 1");
+        return;
+      }
+
+      let kcal = 0;
+      let amount = parseFloat(input);
+
+      if (perUnitMenu.includes(food)) {
+        kcal = caloriesPer100g[food] * amount;
+      } else {
+        kcal = (caloriesPer100g[food] * amount) / 100;
+      }
+
+      total += kcal;
+
+      const item = document.createElement("li");
+      item.textContent = `${label} – ${input}${perUnitMenu.includes(food) ? ' ชาม' : ' กรัม'} ≈ ${kcal.toFixed(2)} kcal`;
+      document.getElementById("foodList").appendChild(item);
+
+      document.getElementById("totalCalories").innerText = `แคลอรี่รวมทั้งหมด: ${total.toFixed(2)} กิโลแคลอรี่`;
+      document.getElementById("amount").value = '';
+    }
+  </script>
+</body>
+</html>
